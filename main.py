@@ -2,6 +2,7 @@ import requests
 import telegram
 from loguru import logger
 from environs import Env
+import time
 
 
 def main():
@@ -50,9 +51,10 @@ def main():
         except requests.exceptions.HTTPError as error:
             logger.warning(f'HTTPError: {error}')
         except requests.exceptions.ReadTimeout:
-            logger.warning('Превышено время оэидания')
+            logger.warning('Превышено время ожидания')
         except requests.exceptions.ConnectionError:
             logger.warning('Соединение разорвано')
+            time.sleep(120)
 
 
 if __name__ == '__main__':
