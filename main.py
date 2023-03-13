@@ -2,18 +2,40 @@ import requests
 import telegram
 from loguru import logger
 from environs import Env
+import logging
+import time
+
+
+class TelegramLogsHandler(logging.Handler):
+
+    def __init__(self, tg_token, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.bot = telegram.Bot(token=tg_token)
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
 def main():
     env = Env()
     env.read_env()
     headers = {
-        'Authorization': env('DEVMAN_TOKEN')
+        'Authorization': env('DEVMAN_TOKEN'),
+        "User-Agent": "Defined"
     }
 
     token = env('BOT_TOKEN')
+    second_bot = env.bool('SECOND_BOT', False)
     chat_id = env('CHAT_ID')
     bot = telegram.Bot(token=token)
+
+    log = logging.getLogger('tg_logger')
+    log.setLevel(logging.WARNING)
+    if second_bot:
+        tg_service_token = env('TG_SERVICE_TOKEN')
+        log.addHandler(TelegramLogsHandler(tg_service_token, chat_id))
 
     while True:
         try:
@@ -50,9 +72,11 @@ def main():
         except requests.exceptions.HTTPError as error:
             logger.warning(f'HTTPError: {error}')
         except requests.exceptions.ReadTimeout:
-            logger.warning('Превышено время оэидания')
+            logger.warning('Превышено время ожидания')
         except requests.exceptions.ConnectionError:
             logger.warning('Соединение разорвано')
+            log.warning('aaa')
+            time.sleep(60)
 
 
 if __name__ == '__main__':
