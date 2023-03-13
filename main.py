@@ -1,20 +1,7 @@
 import requests
 import telegram
-import logging
 from loguru import logger
 from environs import Env
-
-
-class LogsHandler(logging.Handler):
-
-    def __init__(self, tg_token, chat_id):
-        super().__init__()
-        self.chat_id = chat_id
-        self.bot = telegram.Bot(token=tg_token)
-
-    def emit(self, record):
-        log_entry = self.format(record)
-        self.bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
 def main():
@@ -26,14 +13,7 @@ def main():
 
     token = env('BOT_TOKEN')
     chat_id = env('CHAT_ID')
-    second_bot = env.bool('SECOND_BOT', False)
     bot = telegram.Bot(token=token)
-
-    log = logging.getLogger('tg_logger')
-    log.setLevel(logging.WARNING)
-    if second_bot:
-        tg_service_token = env('TG_SERVICE_TOKEN')
-        log.addHandler(LogsHandler(tg_service_token, chat_id))
 
     while True:
         try:
@@ -57,7 +37,7 @@ def main():
                     if attempt['is_negative']:
                         text = f'''\
                                     Урок "{attempt["lesson_title"]}" вернулся с проверки 
-                                    Нужно доработать :(
+                                    Нужно доработать:(
                                     Посмотреть результат можно по ссылке {attempt["lesson_url"]}'''
                     else:
                         text = f'''\
@@ -69,12 +49,10 @@ def main():
 
         except requests.exceptions.HTTPError as error:
             logger.warning(f'HTTPError: {error}')
-            log.warning(f'Я упал с ошибкой HTTP error: {error}')
         except requests.exceptions.ReadTimeout:
-            logger.warning('Превышено время ожидания')
+            logger.warning('Превышено время оэидания')
         except requests.exceptions.ConnectionError:
             logger.warning('Соединение разорвано')
-            log.warning('Соединение разорвано, я упал')
 
 
 if __name__ == '__main__':
