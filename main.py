@@ -18,6 +18,9 @@ class TelegramLogsHandler(logging.Handler):
         self.bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
+log = logging.getLogger('tg_logger')
+
+
 def main():
     env = Env()
     env.read_env()
@@ -31,7 +34,6 @@ def main():
     chat_id = env('CHAT_ID')
     bot = telegram.Bot(token=token)
 
-    log = logging.getLogger('tg_logger')
     log.setLevel(logging.WARNING)
     if second_bot:
         tg_service_token = env('TG_SERVICE_TOKEN')
