@@ -71,11 +71,12 @@ def main():
 
         except requests.exceptions.HTTPError as error:
             logger.warning(f'HTTPError: {error}')
+            log.warning(f'Я упал, HTTP error {error}')
         except requests.exceptions.ReadTimeout:
             logger.warning('Превышено время ожидания')
         except requests.exceptions.ConnectionError:
             logger.warning('Соединение разорвано')
-            log.warning('aaa')
+            log.warning('Соединение разорвано, я упал')
             time.sleep(60)
 
 
