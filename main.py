@@ -25,8 +25,7 @@ def main():
     env = Env()
     env.read_env()
     headers = {
-        'Authorization': env('DEVMAN_TOKEN'),
-        "User-Agent": "Defined"
+        'Authorization': env('DEVMAN_TOKEN')
     }
 
     token = env('BOT_TOKEN')
